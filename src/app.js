@@ -3,7 +3,7 @@ const app = express();
 
 // Ruta principal
 app.get("/", (req, res) => {
-  res.send("Hola Mundo desde DevOps 🚀");
+  res.send("Hola Mundo desde DevOps 🚀 23/8/2025");
 });
 
 // Configuración del puerto
