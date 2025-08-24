@@ -1,40 +1,40 @@
-name: CI/CD Pipeline
+name: CI/CD
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [main]
 
 jobs:
-  build-test-deploy:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      # 1️⃣ Clonar el repositorio
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      # 2️⃣ Configurar Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: 18
 
+      # 3️⃣ Instalar dependencias
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
+      # 4️⃣ Ejecutar tests
       - name: Run tests
         run: npm test
 
+      # 5️⃣ Construir imagen Docker
+      - name: Build Docker image
+        run: docker build -t willian28/hola-mundo-app:latest .
+
+      # 6️⃣ Login seguro a Docker Hub usando secrets
       - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
-      - name: Build and push Docker image
-        run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/hola-mundo-app:latest .
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/hola-mundo-app:latest
-
-      - name: Deploy to Render
-        run: |
-          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
-
+      # 7️⃣ Subir la imagen a Docker Hub
+      - name: Push Docker image
+        run: docker push willian28/hola-mundo-app:latest
